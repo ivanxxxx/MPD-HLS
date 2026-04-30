@@ -6,8 +6,16 @@ BINARY_NAME="mpd2hls"
 INSTALL_DIR="/opt/mpd2hls"
 SERVICE_NAME="mpd2hls"
 SERVICE_FILE="/etc/systemd/system/${SERVICE_NAME}.service"
-DOWNLOAD_URL="https://github.com/judy-gotv/MPD-HLS/raw/main/mpd2hls"
 SCRIPT_PATH="/usr/local/bin/mpd2hls"
+
+# 根据架构选择下载地址
+ARCH=$(uname -m)
+case "$ARCH" in
+    x86_64)  DOWNLOAD_URL="https://github.com/judy-gotv/MPD-HLS/raw/main/mpd2hls" ;;
+    aarch64) DOWNLOAD_URL="https://github.com/judy-gotv/MPD-HLS/raw/main/mpd2hls-aarch64" ;;
+    armv7l)  DOWNLOAD_URL="https://github.com/judy-gotv/MPD-HLS/raw/main/mpd2hls-armv7" ;;
+    *)       DOWNLOAD_URL="" ;;
+esac
 
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -77,8 +85,10 @@ do_install() {
     echo ""
 
     # 检查系统架构
-    ARCH=$(uname -m)
-    [ "$ARCH" = "x86_64" ] || error "仅支持 x86_64 架构，当前: $ARCH"
+    if [ -z "$DOWNLOAD_URL" ]; then
+        error "不支持的系统架构: $ARCH（支持 x86_64 / aarch64 / armv7l）"
+    fi
+    info "系统架构: $ARCH"
 
     # 检查下载工具
     if command -v curl &>/dev/null; then
@@ -147,7 +157,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=$INSTALL_DIR
-ExecStartPre=-/usr/bin/pkill -f /opt/mpd2hls/mpd2hls
+ExecStartPre=/usr/bin/pkill -f $INSTALL_DIR/$BINARY_NAME || true
 ExecStartPre=/bin/sleep 1
 ExecStart=$INSTALL_DIR/$BINARY_NAME
 Restart=always
