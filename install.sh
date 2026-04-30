@@ -157,7 +157,7 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=$INSTALL_DIR
-ExecStartPre=/usr/bin/pkill -f $INSTALL_DIR/$BINARY_NAME || true
+ExecStartPre=-/usr/bin/pkill -x $BINARY_NAME
 ExecStartPre=/bin/sleep 1
 ExecStart=$INSTALL_DIR/$BINARY_NAME
 Restart=always
