@@ -2,7 +2,6 @@
 <p align="center">
   <b>简体中文</b> · <a href="README.en.md">English</a>
 </p>
-# MPD2HLS
 
 **MPD/DASH → HLS 转换服务 · 一键安装 · 自动管理**
 
